@@ -1,0 +1,135 @@
+{
+	"name": "Copy_StackoverflowPost_ForEach",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set Table Name",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_table_name",
+					"value": [
+						"questions",
+						"answers"
+					]
+				}
+			},
+			{
+				"name": "ForEach Table Name",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Set Table Name",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@variables('v_table_name')",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Copy StackoverflowPost ForEach",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"enableSkipIncompatibleRow": true,
+								"logSettings": {
+									"enableCopyActivityLog": true,
+									"copyActivityLogSettings": {
+										"logLevel": "Warning",
+										"enableReliableLogging": false
+									},
+									"logLocationSettings": {
+										"linkedServiceName": {
+											"referenceName": "AzureDataLakeStorage1",
+											"type": "LinkedServiceReference"
+										},
+										"path": {
+											"value": "@concat('landing/stackoverflow/',item(),'/errors')",
+											"type": "Expression"
+										}
+									}
+								},
+								"dataIntegrationUnits": 2,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "Source_StackoverflowPost",
+									"type": "DatasetReference",
+									"parameters": {
+										"p_table_name": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "Landing_StackoverflowPost",
+									"type": "DatasetReference",
+									"parameters": {
+										"p_file_name": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"v_table_name": {
+				"type": "Array"
+			}
+		},
+		"folder": {
+			"name": "Ingestion/Optional with ForEach"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-01-05T09:28:14Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

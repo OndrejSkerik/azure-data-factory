@@ -1,0 +1,132 @@
+{
+	"name": "Copy_GitHubArchiveDay_ForEach",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set Load Date",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_load_date",
+					"value": [
+						"20220731",
+						"20220831",
+						"20220930"
+					]
+				}
+			},
+			{
+				"name": "ForEach Load Date",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Set Load Date",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@variables('v_load_date')",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Copy GitHubArchiveDay ForEach",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "JsonSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "JsonReadSettings"
+									}
+								},
+								"sink": {
+									"type": "JsonSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "JsonWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"enableSkipIncompatibleRow": true,
+								"logSettings": {
+									"enableCopyActivityLog": true,
+									"copyActivityLogSettings": {
+										"logLevel": "Warning",
+										"enableReliableLogging": false
+									},
+									"logLocationSettings": {
+										"linkedServiceName": {
+											"referenceName": "AzureDataLakeStorage1",
+											"type": "LinkedServiceReference"
+										},
+										"path": {
+											"value": "@concat('landing/github/',substring(item(),0,4),'/',substring(item(),4,2),'/',substring(item(),6,2),'/errors')",
+											"type": "Expression"
+										}
+									}
+								},
+								"dataIntegrationUnits": 2
+							},
+							"inputs": [
+								{
+									"referenceName": "Source_GitHubArchiveDay",
+									"type": "DatasetReference",
+									"parameters": {
+										"p_load_date": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "Landing_GitHubArchiveDay_Optional",
+									"type": "DatasetReference",
+									"parameters": {
+										"p_load_date": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"v_load_date": {
+				"type": "Array"
+			}
+		},
+		"folder": {
+			"name": "Ingestion/Optional with ForEach"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-01-05T09:09:10Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

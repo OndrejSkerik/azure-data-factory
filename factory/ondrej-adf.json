@@ -1,0 +1,9 @@
+{
+	"name": "ondrej-adf",
+	"location": "uksouth",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "ca873883-5bc6-454f-b16d-8a9c1e05c9f9",
+		"tenantId": "d4475fc1-84a4-459d-ac72-94f1bf64e442"
+	}
+}

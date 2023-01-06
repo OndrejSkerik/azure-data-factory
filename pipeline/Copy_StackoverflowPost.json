@@ -1,0 +1,115 @@
+{
+	"name": "Copy_StackoverflowPost",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy StackoverflowPost",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Set Table Name",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"enableSkipIncompatibleRow": true,
+					"logSettings": {
+						"enableCopyActivityLog": true,
+						"copyActivityLogSettings": {
+							"logLevel": "Warning",
+							"enableReliableLogging": false
+						},
+						"logLocationSettings": {
+							"linkedServiceName": {
+								"referenceName": "AzureDataLakeStorage1",
+								"type": "LinkedServiceReference"
+							},
+							"path": "landing/stackoverflow/errors"
+						}
+					},
+					"dataIntegrationUnits": 2,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Source_StackoverflowPost",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_table_name": {
+								"value": "@variables('v_table_name')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Landing_StackoverflowPost",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_file_name": {
+								"value": "@variables('v_table_name')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Set Table Name",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_table_name",
+					"value": "questions"
+				}
+			}
+		],
+		"variables": {
+			"v_table_name": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Ingestion/Optional tasks"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-01-03T15:03:10Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
